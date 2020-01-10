@@ -1,4 +1,3 @@
-"""More Robust addition function"""
 class Arr:
     def __init__(self, data):
         self.dtype = dtype(data)
@@ -10,7 +9,16 @@ class Arr:
     __repr__ = __str__
 
     def __add__(self, other):
-        return array_adder(self, other)
+        return array_apply(self, other, self.dtype.__add__)
+
+    def __sub__(self, other):
+        return array_apply(self, other, self.dtype.__sub__)
+
+    def __mul__(self, other):
+        return array_apply(self, other, self.dtype.__mul__)
+
+    def __divmod__(self, other):
+        return array_apply(self, other, self.dtype.__divmod__)
 
     def __len__(self):
         return len(self.data)
@@ -19,13 +27,13 @@ class Arr:
         return self.data[item]
 
 
-def array_adder(left, right):
+def array_apply(left, right, f):
     # Length is the same
     assert len(left) == len(right), f'arrays are not of same shape'
     # Type is the same
     assert dtype(left) == dtype(right), f'Arrays are not of same dtype'
     # We can do the work
-    result = [l + r for (l, r) in zip(left, right)]
+    result = [f(l, r) for (l, r) in zip(left, right)]
     return result
 
 
@@ -47,7 +55,7 @@ if __name__ == '__main__':
     c = Arr([3, 4.0])
     d = Arr([10, 20, '30'])
     s = Arr(['a', 'b', 'c'])
-    q = d+s
+    q = d + s
     s[2]
     s[2, 1]
     print(d + s)
