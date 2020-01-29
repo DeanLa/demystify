@@ -1,4 +1,6 @@
 """More Robust addition function"""
+
+
 class Arr:
     def __init__(self, data):
         self.dtype = dtype(data)
@@ -17,6 +19,7 @@ class Arr:
 
     def __getitem__(self, item):
         return self.data[item]
+
 
 
 def array_adder(left, right):
@@ -42,13 +45,10 @@ def dtype(obj):
 
 
 if __name__ == '__main__':
-    a = Arr([1, 2])
-    b = Arr([3, 4])
-    c = Arr([3, 4.0])
-    d = Arr([10, 20, '30'])
-    s = Arr(['a', 'b', 'c'])
-    q = d+s
-    s[2]
-    s[2, 1]
-    print(d + s)
-    print()
+    i1 = Arr([1, 2])
+    i2 = Arr([3, 4])
+    f = Arr([3, 4.0])
+    s1 = Arr([10, 20, '30'])
+    s2 = Arr(['a', 'b', 'c'])
+    print(i1 + i2)
+    print(s1 + s2)

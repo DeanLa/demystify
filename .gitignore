@@ -1,4 +1,6 @@
 .ipynb_checkpoints/
+tmp_*
+old_*
 
 # PyChaem
 .idea/

@@ -1,5 +1,10 @@
+"""zip_apply to make arithmetic generic"""
+
+
+
 class Arr:
     def __init__(self, data):
+        data = [item for item in data]
         self.dtype = dtype(data)
         self.data = [self.dtype(item) for item in data]
 
@@ -8,33 +13,38 @@ class Arr:
 
     __repr__ = __str__
 
-    def __add__(self, other):
-        return array_apply(self, other, self.dtype.__add__)
-
-    def __sub__(self, other):
-        return array_apply(self, other, self.dtype.__sub__)
-
-    def __mul__(self, other):
-        return array_apply(self, other, self.dtype.__mul__)
-
-    def __divmod__(self, other):
-        return array_apply(self, other, self.dtype.__divmod__)
-
     def __len__(self):
         return len(self.data)
 
-    def __getitem__(self, item):
-        return self.data[item]
+    def __iter__(self):
+        return iter(self.data)
+
+    ### Math
+
+    def __add__(self, other):
+        return zip_apply(self, other, self.dtype.__add__)
+
+    def __sub__(self, other):
+        return zip_apply(self, other, self.dtype.__sub__)
+
+    def __mul__(self, other):
+        return zip_apply(self, other, self.dtype.__mul__)
+
+    def __truediv__(self, other):
+        return zip_apply(self, other, self.dtype.__truediv__)
+
+    def __abs__(self):
+        return Arr(map(self.dtype.__abs__, self.data))
 
 
-def array_apply(left, right, f):
+def zip_apply(left, right, f):
     # Length is the same
     assert len(left) == len(right), f'arrays are not of same shape'
     # Type is the same
     assert dtype(left) == dtype(right), f'Arrays are not of same dtype'
     # We can do the work
     result = [f(l, r) for (l, r) in zip(left, right)]
-    return result
+    return Arr(result)
 
 
 def dtype(obj):
@@ -51,12 +61,11 @@ def dtype(obj):
 
 if __name__ == '__main__':
     a = Arr([1, 2])
-    b = Arr([3, 4])
-    c = Arr([3, 4.0])
-    d = Arr([10, 20, '30'])
-    s = Arr(['a', 'b', 'c'])
-    q = d + s
-    s[2]
-    s[2, 1]
-    print(d + s)
-    print()
+    b = Arr([-3, 4])
+    for i in a:
+        print(i)
+    print(a + b)
+    print(a - b)
+    print(abs(a - b))
+    print(a * b)
+    print(a / b)
