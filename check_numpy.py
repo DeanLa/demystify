@@ -1,9 +1,12 @@
 from functools import partial
 
 import numpy as np
-x = np.arange(10)
+from numpy.lib.stride_tricks import as_strided
+x = np.arange(10)#.reshape(10,1)
 y = np.arange(20).reshape(10,2)
-x = np.broadcast(x,y)
+z = np.broadcast_to(x,(10,2))
+
+np.lib.stride_tricks
 def add(x,y,z):
     return x+y+z
 

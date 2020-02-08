@@ -15,7 +15,6 @@ class Arr:
             self.reshape(rows, 1)
             self.shape = (self.shape[0],)
             self.ndim = len(self.shape)
-            # self.strides = (1,)
             return self
         elif cols == -1:
             assert self.size % rows == 0, f"rows must be divide {self.size} without a remainder"
