@@ -8,7 +8,6 @@ class Arr:
         self.data = [self.dtype(item) for item in data]
         self.size = len(self.data)
         self.reshape(self.size)
-        self.start = 0
 
     def reshape(self, rows, cols=None):
         if cols is None:
@@ -23,7 +22,6 @@ class Arr:
                                                f" values to shape ({rows},{cols})")
         self.shape = (rows, cols)
         self.ndim = len(self.shape)
-        # self.strides = (self.shape[1], 1)
         return self
 
     def __iter__(self):
@@ -67,8 +65,6 @@ class Arr:
         return self.data[item]
 
 
-
-
 # def num_to_slice(num, other_axis):
 #     return slice(num * other_axis, num * other_axis - 1)
 
@@ -98,8 +94,8 @@ def dtype(obj):
 if __name__ == '__main__':
     a = Arr([1, 2, 3, 4, 5, 6])
     a.reshape(3, 2)
-    print (a)
+    print(a)
     a = Arr(range(64)).reshape(8, -1)
-    print (a)
-    b = a[0:2   :2, 1]
+    print(a)
+    b = a[0:2:2, 1]
     a.reshape(6)

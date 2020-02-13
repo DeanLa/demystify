@@ -6,9 +6,8 @@ from a_array.array import Arr
 
 class DF():
     def __init__(self, data, index=None):
-        self._validate(data)
         self.index = index or Idx(range(len(self)))
-        assert len(self.index) == len(self), "index is not same length of df"
+        self._validate(data)
         self.columns = []
         self.data = {}
         for name, vals in data.items():
@@ -18,8 +17,7 @@ class DF():
             self.data[name] = Srs(vals, name=name, index=self.index)
 
     def _validate(self, data):
-        first = list(data.values())[0]
-        self.shape = (len(first), len(data.keys()))
+        self.shape = (len(self.index), len(data.keys()))
         for col in data.values():
             assert len(col) == self.shape[0], "Not all columns are of same length"
 
@@ -90,9 +88,9 @@ class DF():
 
     def dict_apply(self, func_dict):
         ret = {}
-        for k, v in func_dict.items():
+        for k, v in self.columns:
             try:
-                ret[k] = [v()]
+                ret[k] = [func_dict[k]()]
             except:
                 pass
         return DF(ret)

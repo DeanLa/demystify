@@ -54,7 +54,7 @@ class Srs:
         return getattr(self.values, item)
 
     def __getitem__(self, items):
-        if items==slice(None):
+        if items == slice(None):
             return self
         items = listify(items)
         idx = []
@@ -69,6 +69,7 @@ class Srs:
 
     def as_index(self):
         return Idx(self.values)
+
     def value_counts(self):
         idx = self.as_index()
         map_ = idx.mapping
@@ -96,6 +97,7 @@ if __name__ == '__main__':
     z = Srs(range(5), 'bar', idx)
     print(z[['e']])
     print(z[['e', 'a']])
+    print (z.value_counts())
     vc = Srs('abbbbabdbedb', name='letters')
     print(vc)
     print(vc.value_counts())
