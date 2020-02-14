@@ -50,7 +50,7 @@ class Arr:
     __repr__ = __str__
 
     def __getitem__(self, items):
-        if not hasattr(items, '__len__'):  # got only one slicer
+        if not isinstance(items, tuple):  # got only one slicer
             items = (items,)
         assert self.ndim >= len(items), 'More slicers than ndim'
         if self.ndim == 1:
@@ -212,7 +212,7 @@ def dtype(obj):
 
 if __name__ == '__main__':
     a = Arr(range(64))
-    a + 1
+    print(a[3])
     b = a.reshape(8, -1)
     c = Arr(range(100, 900, 100))
     print(b + c)
