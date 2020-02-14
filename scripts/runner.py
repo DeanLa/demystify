@@ -1,11 +1,21 @@
 import json
 import pathlib
-from warnings import warn
 import shutil
+import sys
+from warnings import warn
 
+script = sys.argv[1]
 SUFFIX = 'class'
+
+
+def backup_nb(path):
+    new_path = path.absolute().parent / 'tmp_backup' / path.name
+    shutil.copy(path, new_path)
+
+
 if not SUFFIX:
     exit(-1)
+
 
 def load_nb(path: str or pathlib.Path):
     path = pathlib.Path(path)
@@ -42,7 +52,7 @@ def replace_exercise(cell):
     for line in cell:
         if comment(line, 'boe'):
             ignore = True
-            ret.append( line[:line.find('#')] + 'pass # Your Code Here\n')
+            ret.append(line[:line.find('#')] + 'pass # Your Code Here\n')
         if comment(line, 'eoe'):
             ignore = False
             continue
@@ -78,15 +88,16 @@ def exercise_notebook(path, backup=False):
     return save_nb(new_nb, new_path)
 
 
-def backup_nb(path):
-    new_path = path.absolute().parent / 'tmp_backup' / p.name
-    shutil.copy(path, new_path)
-
+switch = {
+    'strip': exercise_notebook,
+    'backup': backup_nb,
+}
 if __name__ == '__main__':
+    print(script)
     path = pathlib.Path()
     for p in path.glob('Part*.ipynb'):
         if p.stem.endswith(SUFFIX):
             continue
         print(p)
-        exercise_notebook(p)
+        switch[script](p)
     print()

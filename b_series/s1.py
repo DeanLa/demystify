@@ -51,7 +51,9 @@ class Srs:
         return Srs(self.values.__add__(other.values), index=self.index)
 
     def __getattr__(self, item):
-        return getattr(self.values, item)
+        if hasattr(self.values, item):
+            return getattr(self.values, item)
+        raise AttributeError
 
     def __getitem__(self, items):
         if items == slice(None):
