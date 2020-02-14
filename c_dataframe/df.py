@@ -1,78 +1,83 @@
 from functools import partial
 
-from b_series.s1 import Srs, Idx
 from a_array.array import Arr
+from b_series.s1 import Idx, Srs
 
 
-class DF():
+class DF:
     def __init__(self, data, index=None):
-        self.index = index or Idx(range(len(self)))
-        self._validate(data)
-        self.columns = []
-        self.data = {}
-        for name, vals in data.items():
-            self.columns.append((name))
-            if isinstance(vals, Srs):
-                vals = vals.values
-            self.data[name] = Srs(vals, name=name, index=self.index)
+        self.columns = list(data.keys()) # Changed
+        self.data = data
+        self.index = index
+        self._validate()
+        for name in self.columns:
+            self[name] = data[name] # Uses its own __setitem__
 
-    def _validate(self, data):
-        self.shape = (len(self.index), len(data.keys()))
-        for col in data.values():
-            assert len(col) == self.shape[0], "Not all columns are of same length"
+    def _validate(self):
+        for col in self.data.values():
+            assert len(col) == len(self), f"Not all columns are of same length {self.shape}, {len(col)}"
+        self.index = self.index or Idx(range(len(self)))  # In real code, this will not be in validate.
+        assert len(self.index)
+
+    @property # Uses property
+    def shape(self):
+        return (len(self.data[self.columns[0]]),len(self.columns))
 
     def __len__(self):
         return self.shape[0]
 
+    def __iter__(self):
+        collection = [self.index.values.data] + [self.data[col].values for col in self.columns]
+        return zip(*collection)
+
     def __str__(self):
-        maxlen = max([len(col_name) for col_name in self.columns]) + 2
+        maxlen = max([len(col_name) for col_name in self.columns]) + 2  # Will make for nice spaces
         maxlen = max(maxlen, 8)
-        ret = ''.center(maxlen)
-        for col_name in self.columns:
-            ret += col_name.center(maxlen)
-        ret += '\n'
-        for row in self.iterrows():
-            for cell in row:
-                ret += str(cell).center(maxlen)
-            ret += '\n'
+        ret = ''.center(maxlen)  # Top-Left Corner
+        ret += spaced_row(self.columns, maxlen)
+        for row in self:  # This part changes
+            ret += spaced_row(row, maxlen)
         return ret
 
-    def __repr_markdown__(self):
-        # Exercise
-        pass
-
     __repr__ = __str__
+
+    def _repr_markdown_(self):
+        ret = '|'  # Top-Left Corner
+        ret += markdown_row(self.columns)
+        # the --- row
+        ret += markdown_row(['---'] * (self.shape[1] + 1))
+        for row in self:  # This part changes
+            ret += markdown_row(row)
+        return ret
+
+    def __setitem__(self, key, value):
+        assert len(value) == len(self), 'new series is not of same length as df'
+        if key not in self.columns:  # If it is in the columns, it just replaces the current
+            self.columns.append(key)  # This will change the shape
+        if isinstance(value, Srs):  # We did this in __init__. Remember?
+            value = value.values
+        self.data[key] = Srs(value, name=key, index=self.index)
 
     def __getitem__(self, items):
         if not isinstance(items, tuple):
             items = (items,)
         if len(items) == 1:
+            # Bring all rows
             return self[:, items[0]]
-        colidx = items[1]
+        rowidx, colidx = items
         if colidx == slice(None):
             columns = self.columns
         elif isinstance(colidx, str):
-            return self.data[colidx]
+            # Just return the series
+            s = self.data[colidx]
+            return s[rowidx]
         else:
-            columns = [col for col in self.columns if col in colidx]
-        data = {col: self.data[col][items[0]] for col in columns}
+            # Take relevant columns
+            columns = [col for col in self.columns if col in colidx]  # Do we have to create a new dataframe?
+        data = {col: self.data[col][rowidx] for col in columns}
         index = data[columns[0]].index
         ret = DF(data, index=index)
-        ret.columns = columns
         return ret
-
-    def __setitem__(self, key, value):
-        assert len(value) == len(self), 'new series is not of same length as df'
-        if key not in self.columns:
-            self.columns.append(key)
-        if isinstance(value, Srs):
-            value = value.values
-        self.data[key] = Srs(value, name=key, index=self.index)
-        pass
-
-    def iterrows(self):
-        collection = [self.index.values.data] + [self.data[col].values for col in self.columns]
-        return zip(*collection)
 
     def itercols(self):
         for col in self.columns:
@@ -88,27 +93,35 @@ class DF():
 
     def dict_apply(self, func_dict):
         ret = {}
-        for k, v in self.columns:
+        for col in self.columns:
             try:
-                ret[k] = [func_dict[k]()]
+                ret[col] = [func_dict[col]()]
             except:
                 pass
         return DF(ret)
 
 
+def spaced_row(row, maxlen):
+    ret = ''
+    for cell in row:
+        ret += str(cell).center(maxlen)
+    ret += '\n'
+    return ret
+
+
+def markdown_row(row):
+    ret = ''
+    for cell in row:
+        ret += '| ' + str(cell)
+    ret += '|\n'
+    return ret
+
+
 if __name__ == '__main__':
-    data = DF({'a': [10, 22, 32, 42, 25],
-               'b': [100, 200, 200, 100, 300],
-               'c': list('deanl')}, index=Idx(list('tbils')))
-    df = data
-    d = df.a + df.b
-    df['d'] = d
-    f = df.sum
-    f()
-    print(data)
-    for i in data.itercols():
-        print(i)
-    data[:, 'c']
-    data[[1, 4], ['b', 'c']]
-    print()
-    for i in zip((1, 3), (2, 3)): print(i)
+    data = {'flights': [10, 12, 50, 40],
+            'size': [1, 2, 5, 4],
+            'country': ['Israel', 'Georgia', 'US', 'US']}
+    index = Idx(['tlv', 'tbs', 'jfk', 'ewr'])
+    df = DF(data, index)
+    df['mayor'] = ['Huldai', 'Kaladze', 'De Blasio', 'Baraka']
+    df

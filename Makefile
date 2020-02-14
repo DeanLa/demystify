@@ -16,8 +16,13 @@ help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
 ###
-class: ## strip notebooks to hide exercises
-	python scripts/runner.py strip
+class: ## strip solution notebooks to hide exercises
+	python runner.py strip
 
-backup: # Backup all notebooks
-	python scripts/runner.py backup
+strip: class
+
+backup: ## Backup all solution notebooks
+	python runner.py backup
+
+rmnb: ## Remove class notebooks
+	python runner.py rmnb
