@@ -18,6 +18,7 @@ help:
 ###
 class: ## strip solution notebooks to hide exercises
 	python runner.py strip
+	cp -r solutions/obj notebooks/obj
 
 strip: class
 

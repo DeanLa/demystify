@@ -44,8 +44,7 @@ class DF:
     def _repr_markdown_(self):
         ret = '|'  # Top-Left Corner
         ret += markdown_row(self.columns)
-        # the --- row
-        ret += markdown_row(['---'] * (self.shape[1] + 1))
+        ret += markdown_row(['---'] * (self.shape[1] + 1)) # the --- row
         for row in self:  # This part changes
             ret += markdown_row(row)
         return ret

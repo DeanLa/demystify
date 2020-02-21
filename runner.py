@@ -70,6 +70,9 @@ def change_notebook(nb):
         if cell['cell_type'] == 'code':
             new_code = replace_exercise(cell['source'])
             new_cell['source'] = new_code
+            new_cell['outputs'] = []
+            new_cell['execution_count'] = None
+            new_cell['metadata'] = {}
         ret.append(new_cell)
     nb['cells'] = ret
     return nb
@@ -116,4 +119,6 @@ class Run:
 
 if __name__ == '__main__':
     print(script)
+    # p = pathlib.Path('solutions/Part 6 - Behind the Scenes.ipynb')
+    # exercise_notebook(p)
     getattr(Run, script)()
